@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import yaml
 import pandas as pd
 from transformers import (
@@ -9,7 +13,7 @@ from transformers import (
 )
 from datasets import Dataset
 from sklearn.metrics import accuracy_score, f1_score
-from src.data_loader import TextDataLoader
+from data_loader import TextDataLoader
 
 # import mlflow  # ← РАСКОММЕНТИРОВАТЬ ДЛЯ MLFLOW
 
@@ -77,7 +81,7 @@ training_args = TrainingArguments(
     learning_rate=config["model"]["learning_rate"],
     logging_dir="./logs",
     logging_steps=50,
-    eval_strategy="epoch",
+    evaluation_strategy="epoch",
     save_strategy="epoch",
     load_best_model_at_end=True,
     report_to=None,  # ← ЗАМЕНИТЬ НА "mlflow" ДЛЯ MLFLOW
