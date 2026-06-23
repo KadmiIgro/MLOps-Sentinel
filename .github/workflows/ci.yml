@@ -26,8 +26,8 @@ jobs:
     - name: Create test dataset
       run: |
         python -c "import pandas as pd; pd.DataFrame({
-          'text': ['Fire in the building!', 'I love this weather', 'Earthquake detected', 'Just a normal day', 'Tsunami warning'],
-          'target': [1, 0, 1, 0, 1]
+          'text': ['Fire!', 'Peace', 'Earthquake', 'Sunny', 'Tsunami', 'Happy', 'War', 'Love', 'Flood', 'Smile'],
+          'target': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
         }).to_csv('data/train.csv', index=False)"
     
     - name: Train model
