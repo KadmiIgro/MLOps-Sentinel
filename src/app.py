@@ -22,6 +22,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
 class PredictRequest(BaseModel):
     text: str
 
@@ -31,14 +32,17 @@ class PredictRequest(BaseModel):
             raise ValueError('Текст не может быть пустым')
         return v
 
+
 class PredictResponse(BaseModel):
     prediction: int
     confidence: float
     label: str
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "model_loaded": model is not None}
+
 
 @app.post("/predict", response_model=PredictResponse)
 async def predict(request: PredictRequest):
@@ -50,16 +54,16 @@ async def predict(request: PredictRequest):
             padding=True,
             max_length=config['api']['max_text_length']
         )
-        
+
         with torch.no_grad():
             outputs = model(**inputs)
             probs = torch.softmax(outputs.logits, dim=1)
             prediction = torch.argmax(probs, dim=1).item()
             confidence = probs[0][prediction].item()
-        
+
         labels_map = config['task'].get('labels', {})
         label = labels_map.get(str(prediction), f"class_{prediction}")
-        
+
         return PredictResponse(
             prediction=prediction,
             confidence=confidence,
@@ -67,6 +71,7 @@ async def predict(request: PredictRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/")
 async def root():

@@ -1,9 +1,6 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-import yaml
-import pandas as pd
+from data_loader import TextDataLoader
+from sklearn.metrics import accuracy_score, f1_score
+from datasets import Dataset
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
@@ -11,9 +8,12 @@ from transformers import (
     TrainingArguments,
     DataCollatorWithPadding,
 )
-from datasets import Dataset
-from sklearn.metrics import accuracy_score, f1_score
-from data_loader import TextDataLoader
+import pandas as pd
+import yaml
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 
 # import mlflow  # ← РАСКОММЕНТИРОВАТЬ ДЛЯ MLFLOW
 
