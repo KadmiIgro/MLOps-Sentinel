@@ -1,7 +1,7 @@
 import yaml
 import torch
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, validator
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import uvicorn
 
@@ -19,31 +19,26 @@ model.eval()
 app = FastAPI(
     title="MLOps Sentinel API",
     description="Классификация текстов на наличие катастроф",
-    version="1.0.0",
+    version="1.0.0"
 )
-
 
 class PredictRequest(BaseModel):
     text: str
 
-    @field_validator("text")
-    @classmethod
-    def not_empty(cls, v: str) -> str:
+    @validator('text')
+    def not_empty(cls, v):
         if not v or not v.strip():
-            raise ValueError("Текст не может быть пустым")
+            raise ValueError('Текст не может быть пустым')
         return v
-
 
 class PredictResponse(BaseModel):
     prediction: int
     confidence: float
     label: str
 
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "model_loaded": model is not None}
-
 
 @app.post("/predict", response_model=PredictResponse)
 async def predict(request: PredictRequest):
@@ -53,30 +48,29 @@ async def predict(request: PredictRequest):
             return_tensors="pt",
             truncation=True,
             padding=True,
-            max_length=config["api"]["max_text_length"],
+            max_length=config['api']['max_text_length']
         )
-
+        
         with torch.no_grad():
             outputs = model(**inputs)
             probs = torch.softmax(outputs.logits, dim=1)
             prediction = torch.argmax(probs, dim=1).item()
             confidence = probs[0][prediction].item()
-
-        # Безопасное получение label
-        labels_map = config["task"].get("labels", {})
-        label = labels_map.get(prediction, f"class_{prediction}")
-
+        
+        labels_map = config['task'].get('labels', {})
+        label = labels_map.get(str(prediction), f"class_{prediction}")
+        
         return PredictResponse(
-            prediction=prediction, confidence=confidence, label=label
+            prediction=prediction,
+            confidence=confidence,
+            label=label
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/")
 async def root():
     return {"message": "MLOps Sentinel API", "docs": "/docs"}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
