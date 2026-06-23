@@ -1,0 +1,37 @@
+data:
+  path: "data/train.csv"           # Путь к датасету
+  text_column: "text"              # Название колонки с текстом
+  target_column: "target"          # Название колонки с метками
+  test_size: 0.2                   # Доля тестовой выборки
+  random_state: 42
+
+model:
+  name: "distilbert-base-uncased"  # Модель из HuggingFace
+  num_labels: 2                    # Количество классов
+  epochs: 3                        # Эпохи обучения
+  batch_size: 16                   # Размер батча
+  learning_rate: 2e-5              # Скорость обучения
+  warmup_steps: 500
+  weight_decay: 0.01
+
+task:
+  name: "disaster_classification"  # Название задачи
+  description: "Классификация твитов на наличие катастроф"
+  labels:                          # Человекочитаемые названия классов
+    0: "not_disaster"
+    1: "disaster"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  max_text_length: 512
+  log_level: "INFO"
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "mlops_sentinel"
+
+monitoring:
+  enabled: true
+  prometheus_port: 9090
+  grafana_port: 3000
